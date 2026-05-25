@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Simulateur Dommages Matériel Roulant – BCP Courtage / VIVALIS</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bcp-orange:#C8591A;--bcp-light:#FDF6F2;--bcp-border:#E8D5C8}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#F4F0ED;min-height:100vh}
+.wrap{max-width:980px;margin:0 auto;padding:1.5rem 1rem}
+.header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;background:white;border-radius:14px;border:0.5px solid var(--bcp-border);margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(200,89,26,.06)}
+.logo-area{display:flex;align-items:center;gap:14px}
+.logo-img{height:48px;width:auto;object-fit:contain}
+.header-text{border-left:1px solid var(--bcp-border);padding-left:14px}
+.header-text h1{font-size:15px;font-weight:700;color:var(--bcp-orange)}
+.header-text p{font-size:11px;color:#aaa;margin-top:2px}
+.badge-row{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.agent-badge{background:var(--bcp-light);border:0.5px solid var(--bcp-border);color:var(--bcp-orange);font-size:12px;padding:6px 16px;border-radius:20px;font-weight:500}
+.vivalis-badge{background:#1A3A6E;color:white;font-size:11px;padding:4px 12px;border-radius:20px;font-weight:600;letter-spacing:.5px}
+.section{background:white;border:0.5px solid var(--bcp-border);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(200,89,26,.04)}
+.section-title{font-size:12px;font-weight:700;color:var(--bcp-orange);text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem;padding-bottom:.6rem;border-bottom:1px solid var(--bcp-border)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;color:#999;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.field input,.field select{border:1px solid var(--bcp-border);border-radius:8px;padding:9px 11px;font-size:13px;background:white;outline:none;color:#2c1a10;transition:border-color .2s}
+.field input:focus,.field select:focus{border-color:var(--bcp-orange);box-shadow:0 0 0 3px rgba(200,89,26,.08)}
+.field input[readonly]{background:#f5f0ec;color:#888;cursor:not-allowed}
+.info-box{background:#EEF4FB;border:0.5px solid #B8D0EC;border-radius:10px;padding:12px 16px;margin-bottom:1rem;font-size:12px;color:#1A3A6E;line-height:1.8}
+.info-box strong{font-weight:700}
+.consent-row{display:flex;align-items:flex-start;gap:10px;margin-top:14px;padding:12px 14px;background:var(--bcp-light);border:0.5px solid var(--bcp-border);border-radius:8px}
+.consent-row input[type="checkbox"]{width:16px;height:16px;min-width:16px;margin-top:2px;accent-color:var(--bcp-orange);cursor:pointer}
+.consent-row label{font-size:12px;color:#555;line-height:1.6;cursor:pointer}
+.consent-row label strong{color:var(--bcp-orange)}
+.usage-tabs{display:flex;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap}
+.usage-tab{padding:7px 18px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--bcp-border);background:white;color:#888;transition:all .2s}
+.usage-tab.active{background:var(--bcp-orange);color:white;border-color:var(--bcp-orange)}
+.divider{height:1px;background:var(--bcp-border);margin:1.2rem 0}
+.guar-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:.5rem}
+.guar-table th{text-align:left;color:#888;font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:8px;border-bottom:1px solid var(--bcp-border)}
+.guar-table td{padding:10px 8px;border-bottom:0.5px solid var(--bcp-border);color:#2c1a10;vertical-align:middle}
+.guar-table tr:last-child td{border-bottom:none}
+.franchise-tag{display:inline-block;font-size:11px;color:#666;background:#f5f0ec;border:0.5px solid var(--bcp-border);border-radius:6px;padding:2px 8px}
+.included-tag{display:inline-block;font-size:11px;color:#27803A;background:#EAF5EC;border:0.5px solid #B5DEB9;border-radius:6px;padding:2px 8px;font-weight:500}
+.result-section{background:var(--bcp-light);border:1px solid var(--bcp-border);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem}
+.result-title{font-size:12px;font-weight:700;color:var(--bcp-orange);text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem}
+.table-wrap{overflow-x:auto}
+.prime-table{width:100%;border-collapse:collapse;font-size:13px;min-width:760px}
+.prime-table th{background:var(--bcp-orange);color:white;font-size:11px;font-weight:600;padding:10px;text-align:center;letter-spacing:.3px;white-space:nowrap}
+.prime-table th:first-child{text-align:left}
+.prime-table td{padding:10px;border-bottom:0.5px solid var(--bcp-border);color:#2c1a10;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+.prime-table td:first-child{text-align:left;color:#444;font-size:12px}
+.prime-table tr.section-row td{background:#f8f3ef;font-size:11px;color:#999;padding:5px 10px;font-style:italic}
+.ttc-cell{color:var(--bcp-orange);font-weight:700;font-size:14px}
+.prorata-info{background:white;border:0.5px solid var(--bcp-border);border-radius:10px;padding:12px 16px;margin-bottom:1rem;display:flex;gap:20px;flex-wrap:wrap}
+.prorata-item{display:flex;flex-direction:column;gap:3px}
+.prorata-lbl{font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:.5px}
+.prorata-val{font-size:13px;font-weight:600;color:#2c1a10}
+.final-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:1rem}
+.final-card{background:white;border:0.5px solid var(--bcp-border);border-radius:10px;padding:14px;text-align:center}
+.final-card.highlight{background:var(--bcp-orange)}
+.final-label{font-size:11px;color:#aaa;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.final-card.highlight .final-label{color:rgba(255,255,255,.75)}
+.final-amount{font-size:17px;font-weight:700;color:var(--bcp-orange);font-variant-numeric:tabular-nums}
+.final-card.highlight .final-amount{color:white;font-size:20px}
+.duree-box{background:#1A3A6E;border-radius:12px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.duree-label{color:rgba(255,255,255,.85);font-size:13px;font-weight:500}
+.duree-sub{color:rgba(255,255,255,.55);font-size:11px;margin-top:3px}
+.duree-amount{color:white;font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap}
+.btn{padding:11px 26px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.98)}
+.btn-outline{background:white;border:1.5px solid var(--bcp-border);color:var(--bcp-orange)}
+.btn-navy{background:#1A3A6E;color:white}
+.btn-solid{background:var(--bcp-orange);color:white;box-shadow:0 3px 10px rgba(200,89,26,.3)}
+.btn-solid:hover,.btn-navy:hover,.btn-outline:hover{opacity:.9}
+@media(max-width:640px){
+  .grid3,.grid4{grid-template-columns:1fr 1fr}
+  .grid2{grid-template-columns:1fr}
+  .final-grid{grid-template-columns:1fr}
+  .header{flex-direction:column;align-items:flex-start;gap:10px}
+  .duree-box{flex-direction:column;gap:6px;text-align:center}
+}
+@media(max-width:420px){.grid3,.grid4{grid-template-columns:1fr}}
+@media print{body{background:white}.btn-row{display:none}.section,.result-section,.header{box-shadow:none;border:1px solid #ddd}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-area">
+      <img src="logo-bcp.jpg" alt="BCP Courtage" class="logo-img"
+           onerror="this.style.display='none';document.getElementById('logo-text').style.display='block'"/>
+      <div id="logo-text" style="display:none;font-size:18px;font-weight:800;color:var(--bcp-orange)">BCP COURTAGE</div>
+      <div class="header-text">
+        <h1>Simulateur Dommages Matériel Roulant</h1>
+        <p>Convention VIVALIS MR — 2026</p>
+      </div>
+    </div>
+    <div class="badge-row">
+      <span class="agent-badge">● Agent connecté</span>
+      <span class="vivalis-badge">VIVALIS</span>
+    </div>
+  </div>
+
+  <!-- INFO BOX -->
+  <div class="info-box">
+    <strong>Souscripteur :</strong> VIVALIS — Délégataire bénéficiaire &nbsp;|&nbsp;
+    <strong>Taux de prime :</strong> 0,56% sur VN (annuel) &nbsp;|&nbsp;
+    <strong>EVCAT :</strong> 1,5% de la prime HT &nbsp;|&nbsp;
+    <strong>Taxe :</strong> 14% sur Prime Total HT &nbsp;|&nbsp;
+    <strong>Taxe Parafiscale :</strong> 1,5% sur Prime Total HT &nbsp;|&nbsp;
+    <strong>Prorata :</strong> du jour de l'effet au 31/12
+  </div>
+
+  <!-- SECTION USAGE + VÉHICULE (fusionné) -->
+  <div class="section">
+    <div class="section-title">Usage & Détails du véhicule</div>
+
+    <!-- Usage tabs -->
+    <div class="usage-tabs">
+      <button class="usage-tab active" onclick="setUsage('A',this)">Usage A — Tourisme</button>
+      <button class="usage-tab" onclick="setUsage('C1',this)">Usage C1 — Transport ≤ 3,5T</button>
+      <button class="usage-tab" onclick="setUsage('C2',this)">Usage C2 — Transport > 3,5T</button>
+    </div>
+    <div id="usageDesc" style="font-size:12px;color:#888;margin-bottom:1.2rem">Véhicule à usage touristique particulier</div>
+
+    <!-- Carburant + Puissance -->
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="field">
+        <label>Carburant</label>
+        <select id="carburant">
+          <option value="gasoil">Gasoil</option>
+          <option value="essence">Essence</option>
+          <option value="electrique">Électrique</option>
+          <option value="hybride">Hybride</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Puissance fiscale</label>
+        <select id="cv"></select>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Marque / Immat / Date MEC -->
+    <div class="grid3" style="margin-bottom:12px">
+      <div class="field"><label>Marque / Modèle</label><input type="text" placeholder="Ex : Toyota Hilux"/></div>
+      <div class="field"><label>Immatriculation</label><input type="text" placeholder="AA-123-BB"/></div>
+      <div class="field"><label>Date de mise en circulation</label><input type="date" id="dateMEC"/></div>
+    </div>
+
+    <!-- Valeur + Durée -->
+    <div class="grid2">
+      <div class="field">
+        <label>Valeur à neuf du véhicule (DH)</label>
+        <input type="number" id="vn" value="300000" min="0" step="1000"/>
+      </div>
+      <div class="field">
+        <label>Durée du financement</label>
+        <select id="duree">
+          <option value="12">12 mois</option><option value="24">24 mois</option>
+          <option value="36" selected>36 mois</option><option value="48">48 mois</option>
+          <option value="60">60 mois</option><option value="72">72 mois</option>
+          <option value="84">84 mois</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOUSCRIPTEUR -->
+  <div class="section">
+    <div class="section-title">Informations souscripteur & contrat</div>
+    <div class="grid3" style="margin-bottom:12px">
+      <div class="field"><label>Nom & Prénom / Raison sociale</label><input type="text" placeholder="Nom complet"/></div>
+      <div class="field"><label>N° de dossier VIVALIS</label><input type="text" placeholder="VIV-XXXXXX"/></div>
+      <div class="field"><label>Date d'effet de souscription</label>
+        <input type="date" id="dateEffet"/>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Date de fin (automatique)</label>
+        <input type="text" id="dateFin" readonly/>
+      </div>
+      <div class="field"><label>Nombre de jours de couverture</label>
+        <input type="text" id="joursAff" readonly/>
+      </div>
+    </div>
+    <div class="consent-row">
+      <input type="checkbox" id="consentComm"/>
+      <label for="consentComm">J'accepte de recevoir des communications commerciales par e-mail et/ou SMS de la part de <strong>BCP COURTAGE</strong> et <strong>VIVALIS</strong>.</label>
+    </div>
+  </div>
+
+  <!-- GARANTIES -->
+  <div class="section">
+    <div class="section-title">Garanties incluses — Pack VIVALIS MR</div>
+    <table class="guar-table">
+      <thead><tr><th>Garantie</th><th>Franchise</th><th style="text-align:center">Statut</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Incendie du véhicule</strong></td><td><span class="included-tag">Néant</span></td><td style="text-align:center"><span class="included-tag">✓ Incluse</span></td></tr>
+        <tr><td><strong>Vol du véhicule</strong></td><td><span class="franchise-tag">5% des dommages — Min 2 000 DH</span></td><td style="text-align:center"><span class="included-tag">✓ Incluse</span></td></tr>
+        <tr><td><strong>Tierce « Tout Accident »</strong></td><td><span class="franchise-tag">3% des dommages — Min 2 500 DH</span></td><td style="text-align:center"><span class="included-tag">✓ Incluse</span></td></tr>
+        <tr><td><strong>Bris de Glaces</strong></td><td><span class="franchise-tag">5% des dommages — Min 500 DH</span></td><td style="text-align:center"><span class="included-tag">✓ Incluse</span></td></tr>
+        <tr><td><strong>Perte Financière</strong></td><td><span class="included-tag">Néant</span></td><td style="text-align:center"><span class="included-tag">✓ Incluse</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- RÉSULTATS -->
+  <div class="result-section">
+    <div class="result-title">Détail de la prime — Convention VIVALIS MR</div>
+
+    <div class="prorata-info" style="margin-bottom:1rem">
+      <div class="prorata-item"><div class="prorata-lbl">Date d'effet</div><div class="prorata-val" id="infoDebut">—</div></div>
+      <div class="prorata-item"><div class="prorata-lbl">Date de fin</div><div class="prorata-val" id="infoFin">—</div></div>
+      <div class="prorata-item"><div class="prorata-lbl">Nbr de jours</div><div class="prorata-val" id="infoJours">—</div></div>
+      <div class="prorata-item"><div class="prorata-lbl">Usage</div><div class="prorata-val" id="infoUsage">A — Tourisme</div></div>
+      <div class="prorata-item"><div class="prorata-lbl">Carburant</div><div class="prorata-val" id="infoCarb">—</div></div>
+      <div class="prorata-item"><div class="prorata-lbl">Puissance fiscale</div><div class="prorata-val" id="infoCV">—</div></div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="prime-table">
+        <thead>
+          <tr>
+            <th>Désignation</th>
+            <th>Nbr jours</th>
+            <th>Prime HT Annuelle</th>
+            <th>Prime HT Prorata</th>
+            <th>EVCAT 1,5%</th>
+            <th>Prime Total HT</th>
+            <th>Taxe 14%</th>
+            <th>Taxe Para. 1,5%</th>
+            <th>Prime Total TTC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="section-row"><td colspan="9">Période de couverture au prorata du 31/12</td></tr>
+          <tr>
+            <td id="periodLabel">—</td>
+            <td id="tdJours">—</td>
+            <td id="tdHTAnnuel">—</td>
+            <td id="tdHTProrata">—</td>
+            <td id="tdEvcat">—</td>
+            <td id="tdTotalHT">—</td>
+            <td id="tdTaxe14">—</td>
+            <td id="tdTaxePara">—</td>
+            <td class="ttc-cell" id="tdTTC">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="final-grid">
+      <div class="final-card">
+        <div class="final-label">Prime Annuelle HT</div>
+        <div class="final-amount" id="cardHTAnnuel">—</div>
+      </div>
+      <div class="final-card">
+        <div class="final-label">Prime TTC (période)</div>
+        <div class="final-amount" id="cardTTC">—</div>
+      </div>
+      <div class="final-card highlight">
+        <div class="final-label">Prime Mensuelle TTC</div>
+        <div class="final-amount" id="cardMensuel">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIME SUR DURÉE -->
+  <div class="duree-box">
+    <div>
+      <div class="duree-label">Prime totale sur durée de financement</div>
+      <div class="duree-sub" id="dureeLabel">Pour 36 mois — Usage A</div>
+    </div>
+    <div class="duree-amount" id="totalDuree">—</div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="window.print()">🖨️ Imprimer</button>
+    <button class="btn btn-navy" onclick="alert('Devis transmis à VIVALIS.')">📤 Transmettre à VIVALIS</button>
+    <button class="btn btn-solid" onclick="alert('Souscription validée.')">✅ Valider la souscription</button>
+  </div>
+
+</div>
+<script>
+const fmt  = n => n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' DH';
+const fmtN = n => n.toLocaleString('fr-FR');
+const g    = id => document.getElementById(id);
+
+let currentUsage='A';
+const usageDesc={
+  A:'Véhicule à usage touristique particulier',
+  C1:'Transport de marchandises — véhicules de 3,5 tonnes au plus',
+  C2:'Transport de marchandises — véhicules de plus de 3,5 tonnes'
+};
+const cvOptions={
+  A:[{v:'4',l:"Jusqu'à 4 CV"},{v:'6',l:'5 et 6 CV'},{v:'8',l:'7 et 8 CV'},{v:'10',l:'9 et 10 CV'},{v:'11',l:'11 CV et plus'}],
+  C1:[{v:'4',l:"Jusqu'à 4 CV"},{v:'6',l:'5 et 6 CV'},{v:'8',l:'7 et 8 CV'},{v:'10',l:'9 et 10 CV'},{v:'11',l:'11 CV et plus'}],
+  C2:[{v:'lt7t',l:'< 7 tonnes'},{v:'7t16t',l:'7 à 16 tonnes'},{v:'gt16t',l:'> 16 tonnes'}]
+};
+
+function setUsage(code,el){
+  currentUsage=code;
+  document.querySelectorAll('.usage-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  g('usageDesc').textContent=usageDesc[code];
+  g('infoUsage').textContent=code+' — '+usageDesc[code];
+  updateCV();compute();
+}
+
+function updateCV(){
+  const s=g('cv');s.innerHTML='';
+  (cvOptions[currentUsage]||cvOptions.A).forEach((o,i)=>{
+    const opt=document.createElement('option');
+    opt.value=o.v;opt.textContent=o.l;if(i===0)opt.selected=true;s.appendChild(opt);
+  });
+}
+
+function updateDateFin(){
+  const effet=g('dateEffet').value;
+  if(!effet){g('dateFin').value='';g('joursAff').value='';return;}
+  const y=new Date(effet).getFullYear();
+  g('dateFin').value=`31/12/${y}`;
+  const jours=getDays();
+  g('joursAff').value=fmtN(jours)+' jours';
+}
+
+function getDays(){
+  const effet=g('dateEffet').value;
+  if(!effet)return 365;
+  const d=new Date(effet);
+  const fin=new Date(d.getFullYear(),11,31);
+  const diff=fin-d;
+  return diff<0?1:Math.round(diff/(1000*60*60*24))+1;
+}
+
+function compute(){
+  const vn=parseFloat(g('vn').value)||0;
+  const dur=parseInt(g('duree').value)||36;
+  const jours=getDays();
+  const carb=g('carburant').value;
+  const cv=g('cv').options[g('cv').selectedIndex]?.text||'—';
+  const effet=g('dateEffet').value;
+  const annee=effet?new Date(effet).getFullYear():new Date().getFullYear();
+  const finStr=`31/12/${annee}`;
+
+  g('infoCarb').textContent=carb.charAt(0).toUpperCase()+carb.slice(1);
+  g('infoCV').textContent=cv;
+  g('infoJours').textContent=fmtN(jours)+' jours';
+  g('infoDebut').textContent=effet?new Date(effet).toLocaleDateString('fr-FR'):'—';
+  g('infoFin').textContent=finStr;
+
+  if(vn<=0){
+    ['tdJours','tdHTAnnuel','tdHTProrata','tdEvcat','tdTotalHT','tdTaxe14','tdTaxePara','tdTTC',
+     'cardHTAnnuel','cardTTC','cardMensuel','totalDuree','periodLabel'].forEach(id=>g(id).textContent='—');
+    return;
+  }
+
+  const TAUX=0.0056;
+  const primeHTAnnuel=Math.round(vn*TAUX*100)/100;
+  const primeHTProrata=Math.round(primeHTAnnuel*(jours/365)*100)/100;
+  const evcat=Math.round(primeHTProrata*0.015*100)/100;
+  const totalHT=Math.round((primeHTProrata+evcat)*100)/100;
+  const taxe14=Math.round(totalHT*0.14*100)/100;
+  const taxePara=Math.round(totalHT*0.015*100)/100;
+  const totalTTC=Math.round((totalHT+taxe14+taxePara)*100)/100;
+
+  // Prime annuelle TTC pour mensuelle et durée
+  const annuelTotalHT=Math.round((primeHTAnnuel*1.015)*100)/100;
+  const annuelTTC=Math.round((annuelTotalHT*(1+0.14+0.015))*100)/100;
+  const mensuel=Math.round((annuelTTC/12)*100)/100;
+  const totalDuree=Math.round(annuelTTC*(dur/12)*100)/100;
+
+  const debutStr=effet?new Date(effet).toLocaleDateString('fr-FR'):'01/01/'+annee;
+  g('periodLabel').textContent=debutStr+' → '+finStr;
+  g('tdJours').textContent=fmtN(jours)+' j';
+  g('tdHTAnnuel').textContent=fmt(primeHTAnnuel);
+  g('tdHTProrata').textContent=fmt(primeHTProrata);
+  g('tdEvcat').textContent=fmt(evcat);
+  g('tdTotalHT').textContent=fmt(totalHT);
+  g('tdTaxe14').textContent=fmt(taxe14);
+  g('tdTaxePara').textContent=fmt(taxePara);
+  g('tdTTC').textContent=fmt(totalTTC);
+  g('cardHTAnnuel').textContent=fmt(primeHTAnnuel);
+  g('cardTTC').textContent=fmt(totalTTC);
+  g('cardMensuel').textContent=fmt(mensuel);
+  g('totalDuree').textContent=fmt(totalDuree);
+  g('dureeLabel').textContent=`Pour ${dur} mois — Usage ${currentUsage} — ${carb.charAt(0).toUpperCase()+carb.slice(1)} — ${cv}`;
+}
+
+document.querySelectorAll('input[type="number"],select').forEach(el=>{
+  el.addEventListener('input',compute);el.addEventListener('change',compute);
+});
+g('dateEffet').addEventListener('change',()=>{updateDateFin();compute();});
+g('dateMEC').addEventListener('change',compute);
+
+const today=new Date();
+g('dateEffet').value=today.toISOString().split('T')[0];
+updateDateFin();updateCV();compute();
+</script>
+</body>
+</html>
